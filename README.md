@@ -1,3 +1,1 @@
-# nimpy.github.io
-
 Hi!
