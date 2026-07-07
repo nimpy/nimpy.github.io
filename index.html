@@ -1,11 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hi</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nina Žižakić</title>
+  <meta name="description" content="Nina Žižakić — ML Engineer / Software Engineer based in Ghent, Belgium.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <p>Hi!</p>
+
+<canvas id="fractal-canvas"></canvas>
+
+<div class="content-layer">
+
+  <nav id="main-nav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo">Nina</a>
+      <button id="mode-toggle" class="mode-toggle">light</button>
+      <button id="gpu-toggle" class="mode-toggle">light on the gpu</button>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#work">Work</a></li>
+      <!-- <li><a href="photos.html">Photos</a></li> -->
+      <li><a href="latent-space.html">Latent Space</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 class="hero-title">Nina Žižakić</h1>
+    <p class="hero-sub">ML Engineer / Software Engineer &middot; Ghent, Belgium</p>
+  </section>
+
+  <!-- About -->
+  <section class="section" id="about">
+    <div class="zh-divider"></div>
+
+    <div class="panel reveal">
+      <h2>About</h2>
+      <p>I am Nina and writing the bio was not prio.</p>
+      <p>
+        In my spare time I like to travel, spend a couple of hours per week resting at the gym, 
+        and start side projects I don't always finish.
+      </p>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section class="section" id="work">
+    <div class="zh-divider"></div>
+
+    <div class="panel reveal">
+      <h2>Selected Work</h2>
+    </div>
+
+    <div class="project-grid">
+      <a class="project-card reveal" href="https://www.inthepocket.com/work/bancontact-company-ai-customer-support" target="_blank">
+        <span class="tag">Bancontact Company</span>
+        <h3>Penny — AI for Bancontact Customer Support</h3>
+        <p>AI assistant that automates customer support ticket handling for Bancontact by categorising inquiries and generating personalised responses.</p>
+      </a>
+
+      <div class="project-card reveal">
+        <span class="tag">Bancontact Company</span>
+        <h3>Ruby — Semantic Search on Bancontact's Extranet</h3>
+        <p>RAG-based search system that evolved into a chatbot for Bancontact's complex regulatory documents.</p>
+      </div>
+
+      <a class="project-card reveal" href="https://www.inthepocket.com/work/start-2-run" target="_blank">
+        <span class="tag">Golazo Energy</span>
+        <h3>Start 2 Run — Predicting Safe Running Speeds</h3>
+        <p>LSTM-based model that predicts safe running speeds for beginners, trained on 7,500 sessions. Helps prevent injuries that cause half of new runners to quit.</p>
+      </a>
+
+      <a class="project-card reveal" href="projects/phd.html">
+        <span class="tag">Ghent University</span>
+        <h3>My PhD — &ldquo;RAG for images&rdquo;</h3>
+        <p>My doctoral research on autoencoder-based methods for image dimensionality reduction at Ghent University, defended in 2022.</p>
+      </a>
+    </div>
+  </section>
+
+  <div class="zh-divider" style="margin-bottom:3rem;"></div>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      <a href="https://github.com/nimpy" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/ninazizakic/" target="_blank">LinkedIn</a>
+    </p>
+    <p style="margin-top:1rem;">&copy; 2026 <s>Claude Fable 5</s> Nina Žižakić</p>
+  </footer>
+
+</div>
+
+<script src="js/fractal.js"></script>
+<script>
+  var nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', function () {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+</script>
 </body>
 </html>

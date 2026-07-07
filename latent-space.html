@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latent Space — Nina</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    #word-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+    }
+
+    #fractal-canvas { display: none; }
+
+    .words-ui {
+      position: fixed;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    #tooltip {
+      position: fixed;
+      z-index: 10;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text);
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.4rem 0.8rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    #tooltip.visible { opacity: 1; }
+
+    .words-info {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      opacity: 0.5;
+      text-align: center;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="fractal-canvas"></canvas>
+<canvas id="word-canvas"></canvas>
+
+<div class="content-layer">
+
+  <nav id="main-nav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo">Nina</a>
+      <button id="mode-toggle" class="mode-toggle">light</button>
+      <button id="gpu-toggle" class="mode-toggle">light on the gpu</button>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#work">Work</a></li>
+      <!-- <li><a href="photos.html">Photos</a></li> -->
+      <li><a href="latent-space.html">Latent Space</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+<div id="tooltip"></div>
+<div class="words-info">drag to rotate &middot; scroll to zoom &middot; hover to inspect</div>
+
+<script src="js/fractal.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const tooltip = document.getElementById('tooltip');
+
+const resp = await fetch('js/word-data.json');
+const words = await resp.json();
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xfaf9f7);
+
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(2.2, 1.6, 2.2);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('word-canvas'),
+  antialias: true
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.4;
+
+// Lavender palette colors for the points
+const palette = [
+  new THREE.Color(0.98, 0.96, 0.94),
+  new THREE.Color(0.88, 0.82, 0.90),
+  new THREE.Color(0.72, 0.62, 0.78),
+  new THREE.Color(0.58, 0.52, 0.64),
+  new THREE.Color(0.84, 0.80, 0.82),
+];
+
+const positions = new Float32Array(words.length * 3);
+const colors = new Float32Array(words.length * 3);
+const sizes = new Float32Array(words.length);
+
+for (let i = 0; i < words.length; i++) {
+  positions[i * 3] = words[i].x;
+  positions[i * 3 + 1] = words[i].y;
+  positions[i * 3 + 2] = words[i].z;
+
+  const t = (words[i].x + 1) / 2;
+  const ci = Math.min(Math.floor(t * (palette.length - 1)), palette.length - 2);
+  const f = t * (palette.length - 1) - ci;
+  const col = palette[ci].clone().lerp(palette[ci + 1], f);
+  colors[i * 3] = col.r;
+  colors[i * 3 + 1] = col.g;
+  colors[i * 3 + 2] = col.b;
+
+  sizes[i] = 3.0;
+}
+
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+const material = new THREE.ShaderMaterial({
+  vertexColors: true,
+  transparent: true,
+  depthWrite: false,
+  vertexShader: `
+    attribute float size;
+    varying vec3 vColor;
+    void main() {
+      vColor = color;
+      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+      gl_PointSize = size * (30.0 / -mvPosition.z);
+      gl_Position = projectionMatrix * mvPosition;
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vColor;
+    void main() {
+      float d = length(gl_PointCoord - vec2(0.5));
+      if (d > 0.5) discard;
+      float alpha = 1.0 - smoothstep(0.45, 0.5, d);
+      gl_FragColor = vec4(vColor, alpha);
+    }
+  `
+});
+
+const points = new THREE.Points(geometry, material);
+scene.add(points);
+
+// Raycaster for hover
+const raycaster = new THREE.Raycaster();
+raycaster.params.Points.threshold = 0.04;
+const mouse = new THREE.Vector2();
+let hoveredIndex = -1;
+
+renderer.domElement.addEventListener('mousemove', function(e) {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObject(points);
+
+  if (intersects.length > 0) {
+    const idx = intersects[0].index;
+    if (idx !== hoveredIndex) {
+      hoveredIndex = idx;
+      tooltip.textContent = words[idx].w;
+      tooltip.classList.add('visible');
+
+      // Highlight hovered point
+      const sa = geometry.attributes.size;
+      for (let i = 0; i < sa.count; i++) sa.array[i] = 3.0;
+      sa.array[idx] = 6.0;
+      sa.needsUpdate = true;
+    }
+    tooltip.style.left = (e.clientX + 14) + 'px';
+    tooltip.style.top = (e.clientY - 14) + 'px';
+  } else {
+    if (hoveredIndex !== -1) {
+      hoveredIndex = -1;
+      tooltip.classList.remove('visible');
+      const sa = geometry.attributes.size;
+      for (let i = 0; i < sa.count; i++) sa.array[i] = 3.0;
+      sa.needsUpdate = true;
+    }
+  }
+});
+
+// Lighter mode support
+function updateBackground() {
+  const isLighter = document.body.classList.contains('lighter');
+  scene.background = new THREE.Color(isLighter ? 0xffffff : 0xfaf9f7);
+}
+
+const observer = new MutationObserver(updateBackground);
+observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+updateBackground();
+
+window.addEventListener('resize', function() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// Stop auto-rotate on interaction, restart after idle
+let idleTimer;
+controls.addEventListener('start', function() {
+  controls.autoRotate = false;
+  clearTimeout(idleTimer);
+});
+controls.addEventListener('end', function() {
+  idleTimer = setTimeout(function() { controls.autoRotate = true; }, 3000);
+});
+</script>
+</body>
+</html>

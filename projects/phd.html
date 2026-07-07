@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhD — Nina</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<canvas id="fractal-canvas"></canvas>
+
+<div class="content-layer">
+
+  <nav id="main-nav">
+    <div class="nav-left">
+      <a href="../index.html" class="nav-logo">Nina</a>
+      <button id="mode-toggle" class="mode-toggle">light</button>
+      <button id="gpu-toggle" class="mode-toggle">light on the gpu</button>
+    </div>
+    <ul class="nav-links">
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#work">Work</a></li>
+      <!-- <li><a href="../photos.html">Photos</a></li> -->
+      <li><a href="../latent-space.html">Latent Space</a></li>
+    </ul>
+  </nav>
+
+  <section class="detail-hero">
+    <span class="tag">Ghent University &middot; AI for Computer Vision</span>
+    <h1>My PhD</h1>
+  </section>
+
+  <div class="detail-content">
+    <a href="../index.html#work" class="back-link">&larr; All projects</a>
+
+    <div class="panel reveal">
+      <h2>What it was about</h2>
+      <p>
+        I did my PhD at
+        <a href="https://www.ugent.be" target="_blank">Ghent University</a> in the
+        <a href="https://gaim.ugent.be" target="_blank">GAIM</a> research group,
+        supervised by Prof. Aleksandra Pizurica. I defended my thesis in November 2022.
+      </p>
+      <p>
+        The research explores autoencoder-based methods for reducing the dimensionality of
+        image data, at the intersection of machine learning and computer vision.
+      </p>
+      <p>
+        <a href="https://gaim.ugent.be/post/phd_nina/" target="_blank">GAIM announcement &rarr;</a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://biblio.ugent.be/publication/01GJAPXMHGCPD9G2X30WR4MVH0" target="_blank">Dissertation &rarr;</a>
+      </p>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      <a href="https://github.com/nimpy" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/ninazizakic/" target="_blank">LinkedIn</a>
+    </p>
+    <p style="margin-top:1rem;">&copy; 2026 Nina Žižakić</p>
+  </footer>
+
+</div>
+
+<script src="../js/fractal.js"></script>
+<script>
+  var nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', function () {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+</script>
+</body>
+</html>
