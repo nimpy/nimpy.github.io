@@ -42,7 +42,7 @@ body.lighter {
   --footer-muted: rgba(60, 60, 60, 0.35);
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
 
 body {
   font-family: 'Space Grotesk', system-ui, sans-serif;
@@ -103,7 +103,9 @@ nav.scrolled { background: var(--nav-bg-scrolled); }
   letter-spacing: 2px;
 }
 
-.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; list-style: none; }
+
+.nav-links a { white-space: nowrap; }
 
 .nav-links a {
   color: var(--text-muted);
@@ -258,6 +260,10 @@ nav.scrolled { background: var(--nav-bg-scrolled); }
 
 /* === Section spacing === */
 .section { padding: 6rem 2rem; }
+
+/* A panel that ends its section shouldn't add bottom margin —
+   keeps the divider centered between sections. */
+.section > .panel:last-child { margin-bottom: 0; }
 
 /* === Sierpinski Divider === */
 .zh-divider { margin: 2rem auto; max-width: 600px; }
@@ -505,8 +511,18 @@ footer a:hover { color: var(--accent); }
 
 /* === Responsive === */
 @media (max-width: 768px) {
-  nav { padding: 1rem 1.2rem; }
-  .nav-links { gap: 1.2rem; }
+  html { scroll-padding-top: 9rem; }
+  nav {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.9rem 1.2rem;
+  }
+  .nav-left {
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav-links { gap: 1.5rem; }
   .nav-links a { font-size: 0.78rem; }
   .panel { padding: 2rem 1.5rem; margin-left: 1rem; margin-right: 1rem; }
   .project-grid { grid-template-columns: 1fr; margin: 0 1rem; }
